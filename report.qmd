@@ -1,0 +1,128 @@
+---
+title: "VIDEO EDITING BCIT \n students' interests"
+author: "by Reinecken"
+date: "January 16, 2023"
+title-slide-attributes:
+  data-background-image: /figs/ss2.png
+  data-background-size: contain
+  data-background-opacity: "0.20"
+format:
+  revealjs:
+    slide-number: c/t
+    show-slide-number: all
+    controls: true
+editor: visual
+---
+
+```{r, echo=FALSE, message = FALSE, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(wesanderson)
+
+data_interests = tribble(~course, ~interest, ~N,
+                         "BNB_intro", "professional_editor", 9,
+                         "BNB_intro", "videographer_YT_CC", 5,
+                         "BNB_intro", "professional_improvement", 4,
+                         "BNB_intro", "for_fun", 3,
+                         "DTC_into", "professional_editor", 9,
+                         "DTC_into", "videographer_YT_CC", 6,
+                         "DTC_into", "professional_improvement", 4,
+                         "DTC_into", "for_fun", 4,
+                         "BNB_adv", "professional_editor", 5,
+                         "BNB_adv", "videographer_YT_CC", 4,
+                         "BNB_adv", "professional_improvement", 9,
+                         "BNB_adv", "for_fun", 0)
+
+data_interests$course <- as.factor(data_interests$course)
+data_interests$interest <- as.factor(data_interests$interest)
+```
+
+# Number of students = 62
+
+```{r echo=FALSE, message = FALSE}
+#| fig-width: 30
+#| fig-height: 20
+#| column: screen
+#| fig-align: center
+
+x <- data_interests %>% 
+  group_by(interest) %>% 
+  summarise(N = sum(N))
+
+uncount_interests <- uncount(data_interests, N)
+
+g <- ggplot(uncount_interests, aes(interest))
+
+courses_names <- as_labeller(
+  c('BNB_intro'="Intro \n (Burnaby Campus)",
+  'DTC_into'="Intro \n (Downtown Campus)",
+  'BNB_adv'="Advanced \n (Burnaby Campus)")
+)
+
+g + geom_bar(fill = wes_palette("Moonrise3", n = 1), stat="count") +
+  geom_text(aes(label = scales::percent(..count../100)), 
+            stat = "count", 
+            position=position_dodge(width=0.9),
+            vjust=-0.25,
+            size = 20) +
+  theme_minimal() +
+  scale_x_discrete(name="", 
+                   labels = c("professional \n editor", 
+                              "get better / \n working already", 
+                              "videographer / \n YouTube / \n content creator", 
+                              "for fun"),
+                   limits = c("professional_editor", 
+                              "professional_improvement", 
+                              "videographer_YT_CC", 
+                              "for_fun")) +
+  theme(axis.title.y = element_blank(),
+        axis.text = element_text(size = 50),
+        legend.position="none",
+        text = element_text(size = 50),
+        axis.text.y = element_blank(),
+        axis.text.x = element_text(vjust = 1, lineheight = 1),
+        panel.grid = element_blank()
+        ) 
+```
+
+# By course
+
+Total of students = 62
+
+```{r echo=FALSE, message = FALSE}
+#| fig-width: 30
+#| fig-height: 20
+#| column: screen
+#| fig-align: center
+
+g <- ggplot(data_interests, aes(fill = course, y = N, x = interest))
+
+g + geom_bar(position="dodge", stat="identity") +
+  theme_minimal() +
+  scale_x_discrete(name="", labels = c("professional \n editor", 
+                              "get better / \n working already", 
+                              "videographer / \n YouTube / \n content creator", 
+                              "for fun"),
+                   limits = c("professional_editor", 
+                              "professional_improvement", 
+                              "videographer_YT_CC", 
+                              "for_fun")) +
+  facet_wrap(~course, nrow = 3, ncol = 1, 
+             scales = "fixed", 
+             strip.position = "left", 
+             labeller = courses_names) +
+  geom_text(aes(label=N),
+            position=position_dodge(width=0.9),
+            vjust=-0.25,
+            size = 20) +
+  theme(axis.title.y = element_blank(),
+        axis.text = element_text(size = 50),
+        legend.position="none",
+        text = element_text(size = 50),
+        axis.text.y = element_blank(),
+        panel.grid = element_blank(),
+        strip.text.y.left = element_text(angle = 0)
+        ) +
+  scale_fill_manual(values = wes_palette("Moonrise3", n = 3)) +
+  scale_y_continuous(expand = expansion(mult = 0.5))
+```
